@@ -1,30 +1,28 @@
 package com.jaedongchicken.ytplayer;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
-import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.view.View;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-
 import com.jaedongchicken.ytplayer.model.PlaybackQuality;
 import com.jaedongchicken.ytplayer.model.YTParams;
+import ohos.aafwk.ability.Ability;
+import ohos.aafwk.content.Intent;
+import ohos.agp.components.AttrSet;
+import ohos.agp.components.webengine.*;
+import ohos.agp.window.service.Display;
+import ohos.agp.window.service.DisplayAttributes;
+import ohos.agp.window.service.DisplayManager;
+import ohos.app.Context;
+import ohos.eventhandler.EventHandler;
+import ohos.eventhandler.EventRunner;
+import ohos.eventhandler.InnerEvent;
+import ohos.global.resource.RawFileEntry;
+import ohos.global.resource.Resource;
+import ohos.global.resource.ResourceManager;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.util.Optional;
 
 public class YoutubePlayerView extends WebView {
 
@@ -34,7 +32,7 @@ public class YoutubePlayerView extends WebView {
 
     private YouTubeListener youTubeListener;
     private String backgroundColor = "#000000";
-    private final String customURL = "http://jaedong.net/youtube/";
+    private final String customURL = "https://www.youtube.com/watch?v=";
 
     private Context context;
 
@@ -44,65 +42,57 @@ public class YoutubePlayerView extends WebView {
     public YoutubePlayerView(Context context) {
         super(context);
         this.context = context;
-        setWebViewClient(new MyWebViewClient((Activity) context));
+        setWebAgent(new MyWebViewClient((Ability) context));
     }
 
-    public YoutubePlayerView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public YoutubePlayerView(Context context, AttrSet attrSet) {
+        super(context, attrSet);
         this.context = context;
-        setWebViewClient(new MyWebViewClient((Activity) context));
+        setWebAgent(new MyWebViewClient((Ability) context));
     }
 
-    @SuppressLint("JavascriptInterface")
+
     public void initialize(String videoId, YouTubeListener youTubeListener) {
-        WebSettings set = this.getSettings();
-        set.setJavaScriptEnabled(true);
-        set.setUseWideViewPort(true);
-        set.setLoadWithOverviewMode(true);
-        set.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
-        set.setCacheMode(WebSettings.LOAD_NO_CACHE);
-        set.setPluginState(WebSettings.PluginState.ON);
-        set.setPluginState(WebSettings.PluginState.ON_DEMAND);
-        set.setAllowContentAccess(true);
-        set.setAllowFileAccess(true);
+        WebConfig set = this.getWebConfig();
+        set.setJavaScriptPermit(true);
+        set.setViewPortFitScreen(true);
+        set.setAutoFitOnLoad(true);
+        //set.setLoadWithOverviewMode(true);
+        set.setTextAutoSizing(true);
+        //set.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        //set.setPluginState(WebSettings.PluginState.ON);
+        //set.setPluginState(WebSettings.PluginState.ON_DEMAND);
+        set.setDataAbilityPermit(true);
+        //set.setAllowFileAccess(true);
 
         this.youTubeListener = youTubeListener;
-        this.setLayerType(View.LAYER_TYPE_NONE, null);
-        this.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        this.addJavascriptInterface(bridge, "QualsonInterface");
+        //this.setLayerType(View.LAYER_TYPE_NONE, null);
+        estimateSize(EstimateSpec.UNCONSTRAINT, EstimateSpec.UNCONSTRAINT);
+        this.addJsCallback("QualsonInterface", bridge);
         this.setLongClickable(true);
-        this.setWebChromeClient(new WebChromeClient());
-        this.setWebViewClient(new QWebViewClient());
-        this.setOnLongClickListener(new OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                return true;
-            }
-        });
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && BuildConfig.DEBUG) {
-            setWebContentsDebuggingEnabled(true);
-        }
+        this.setBrowserAgent(new BrowserAgent(context));
+        this.setWebAgent(new QWebViewClient());
 
         if (isCustomDomain) {
-            this.loadUrl(videoId);
+            this.load(videoId);
         } else {
-            this.loadDataWithBaseURL("http://www.youtube.com", getVideoHTML(videoId), "text/html", "utf-8", null);
+
+            this.load("http://www.youtube.com", getVideoHTML(videoId), "text/html", "utf-8", null);
         }
     }
 
     public void initialize(String videoId, YTParams params, YouTubeListener youTubeListener) {
-        if(params != null) {
+        if (params != null) {
             this.params = params;
         }
         initialize(videoId, youTubeListener);
     }
 
     public void initializeWithUrl(String videoUrl, YTParams params, YouTubeListener youTubeListener) {
-        if(params != null) {
+        if (params != null) {
             this.params = params;
         }
-        String videoId = videoUrl.substring(videoUrl.indexOf('=')+1);
+        String videoId = videoUrl.substring(videoUrl.indexOf('=') + 1);
         initialize(videoId, youTubeListener);
     }
 
@@ -127,9 +117,9 @@ public class YoutubePlayerView extends WebView {
     }
 
     public void setAutoPlayerHeight(Context context) {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        this.getLayoutParams().height = (int) (displayMetrics.widthPixels * 0.5625);
+        Optional<Display> display = DisplayManager.getInstance().getDefaultDisplay(context);
+        DisplayAttributes displayAttributes = display.get().getAttributes();
+        this.getLayoutConfig().height = (int) (displayAttributes.width * 0.5625);
     }
 
     public void setAutoPlayerHeight() {
@@ -141,44 +131,45 @@ public class YoutubePlayerView extends WebView {
      */
     public void seekToMillis(double mil) {
         JLog.d("seekToMillis : ");
-        this.loadUrl("javascript:onSeekTo(" + mil + ")");
+        this.load("javascript:onSeekTo(" + mil + ")");
     }
 
     public void pause() {
         JLog.d("pause");
-        this.loadUrl("javascript:onVideoPause()");
+        this.load("javascript:onVideoPause()");
     }
 
     public void play() {
         JLog.d("play");
-        this.loadUrl("javascript:onVideoPlay()");
+        this.load("javascript:onVideoPlay()");
     }
 
     public void onLoadVideo(String videoId, float mil) {
         JLog.d("onLoadVideo : " + videoId + ", " + mil);
-        this.loadUrl("javascript:loadVideo('" + videoId + "', " + mil + ")");
+        this.load("javascript:loadVideo('" + videoId + "', " + mil + ")");
     }
 
     public void onCueVideo(String videoId) {
         JLog.d("onCueVideo : " + videoId);
-        this.loadUrl("javascript:cueVideo('" + videoId + "')");
+        this.load("javascript:cueVideo('" + videoId + "')");
     }
 
     public void playFullscreen() {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        this.getLayoutParams().height = (int) (displayMetrics.widthPixels * 0.5625);
+        Optional<Display> display = DisplayManager.getInstance().getDefaultDisplay(context);
+        DisplayAttributes displayAttributes = display.get().getAttributes();
+        this.getLayoutConfig().height = (int) (displayAttributes.width * 0.5625);
 
         JLog.d("playFullscreen");
-        this.loadUrl("javascript:playFullscreen(" + displayMetrics.widthPixels + ", " + displayMetrics.heightPixels + ")");
+        this.load("javascript:playFullscreen(" + displayAttributes.width + ", " + displayAttributes.height + ")");
     }
+
 
     /**
      * WEB TO APP
      */
-    private class QualsonBridge {
+    private class QualsonBridge implements JsCallback {
 
-        @JavascriptInterface
+
         public void onReady(String arg) {
             JLog.d("onReady(" + arg + ")");
             if (youTubeListener != null) {
@@ -186,7 +177,7 @@ public class YoutubePlayerView extends WebView {
             }
         }
 
-        @JavascriptInterface
+
         public void onStateChange(String arg) {
             JLog.d("onStateChange(" + arg + ")");
             if (youTubeListener != null) {
@@ -206,7 +197,7 @@ public class YoutubePlayerView extends WebView {
             }
         }
 
-        @JavascriptInterface
+
         public void onPlaybackQualityChange(String arg) {
             JLog.d("onPlaybackQualityChange(" + arg + ")");
             if (youTubeListener != null) {
@@ -214,7 +205,7 @@ public class YoutubePlayerView extends WebView {
             }
         }
 
-        @JavascriptInterface
+
         public void onPlaybackRateChange(String arg) {
             JLog.d("onPlaybackRateChange(" + arg + ")");
             if (youTubeListener != null) {
@@ -222,7 +213,7 @@ public class YoutubePlayerView extends WebView {
             }
         }
 
-        @JavascriptInterface
+
         public void onError(String arg) {
             JLog.e("onError(" + arg + ")");
             if (youTubeListener != null) {
@@ -230,7 +221,7 @@ public class YoutubePlayerView extends WebView {
             }
         }
 
-        @JavascriptInterface
+
         public void onApiChange(String arg) {
             JLog.d("onApiChange(" + arg + ")");
             if (youTubeListener != null) {
@@ -238,22 +229,21 @@ public class YoutubePlayerView extends WebView {
             }
         }
 
-        @JavascriptInterface
+
         public void currentSeconds(String seconds) {
             if (youTubeListener != null) {
                 // currentTime callback
                 float second = Float.parseFloat(seconds);
                 if (isHandlerEnable) {
-                    Message msg = new Message();
-                    msg.obj = second;
-                    handler.sendMessage(msg);
+                    InnerEvent innerEvent = InnerEvent.get(100, second);
+                    handler.sendEvent(innerEvent);
                 } else {
                     youTubeListener.onCurrentSecond(second);
                 }
             }
         }
 
-        @JavascriptInterface
+
         public void duration(String seconds) {
             JLog.d("duration -> " + seconds);
             if (youTubeListener != null) {
@@ -261,7 +251,7 @@ public class YoutubePlayerView extends WebView {
             }
         }
 
-        @JavascriptInterface
+
         public void logs(String arg) {
             JLog.d("logs(" + arg + ")");
             if (youTubeListener != null) {
@@ -269,15 +259,20 @@ public class YoutubePlayerView extends WebView {
             }
         }
 
-        private Handler handler = new Handler() {
+        private EventHandler handler = new EventHandler(EventRunner.getMainEventRunner()) {
             @Override
-            public void handleMessage(Message msg) {
-                float second = (float) msg.obj;
+            protected void processEvent(InnerEvent event) {
+                float second = (float) event.object;
                 if (youTubeListener != null) {
                     youTubeListener.onCurrentSecond(second);
                 }
             }
         };
+
+        @Override
+        public String onCallback(String s) {
+            return null;
+        }
     }
 
 
@@ -296,10 +291,10 @@ public class YoutubePlayerView extends WebView {
     }
 
     public void onDestroy() {
-        super.onDetachedFromWindow();
+        //super.onDetachedFromWindow();
         // View is now detached, and about to be destroyed
-        this.clearCache(true);
-        this.clearHistory();
+        this.clearAllCache();
+        this.clearMemoryCache();
         try {
             if (sConfigCallback != null)
                 sConfigCallback.set(null, null);
@@ -308,19 +303,19 @@ public class YoutubePlayerView extends WebView {
         }
     }
 
-    private class MyWebViewClient extends WebViewClient {
-        protected WeakReference<Activity> activityRef;
+    private class MyWebViewClient extends WebAgent {
+        protected WeakReference<Ability> activityRef;
 
-        public MyWebViewClient(Activity activity) {
+        public MyWebViewClient(Ability activity) {
             this.activityRef = new WeakReference<>(activity);
         }
 
         @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        public boolean isNeedLoadUrl(WebView webView, ResourceRequest request) {
             try {
-                final Activity activity = activityRef.get();
+                final Ability activity = activityRef.get();
                 if (activity != null)
-                    activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    activity.startAbility(new Intent().setUri(request.getRequestUrl()));
             } catch (RuntimeException ignored) {
                 // ignore any url parsing exceptions
             }
@@ -328,8 +323,8 @@ public class YoutubePlayerView extends WebView {
         }
 
         @Override
-        public void onPageFinished(WebView view, String url) {
-            super.onPageFinished(view, url);
+        public void onPageLoaded(WebView webView, String url) {
+            super.onPageLoaded(webView, url);
             JLog.d("onPageFinished()");
         }
     }
@@ -366,7 +361,16 @@ public class YoutubePlayerView extends WebView {
 
     private String getVideoHTML(String videoId) {
         try {
-            InputStream in = getResources().openRawResource(R.raw.players);
+            ResourceManager resManager = context.getResourceManager();
+            RawFileEntry rawFileEntry = resManager.getRawFileEntry("resources/rawfile/players.qualson");
+            Resource in = null;
+            try {
+                in = rawFileEntry.openRawFile();
+            } catch (IOException e) {
+                JLog.i("Exception", e.getLocalizedMessage());
+            }
+
+
             if (in != null) {
                 InputStreamReader stream = new InputStreamReader(in, "utf-8");
                 BufferedReader buffer = new BufferedReader(stream);

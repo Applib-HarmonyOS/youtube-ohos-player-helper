@@ -1,28 +1,29 @@
 package com.jaedongchicken.ytplayer;
 
-import android.graphics.Bitmap;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import ohos.agp.components.webengine.ResourceRequest;
+import ohos.agp.components.webengine.WebAgent;
+import ohos.agp.components.webengine.WebView;
+import ohos.media.image.PixelMap;
 
 /**
  * Created by JD on 21/12/2017.
  */
 
-public class QWebViewClient extends WebViewClient {
+public class QWebViewClient extends WebAgent {
 
     @Override
-    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+    public void onLoadingPage(WebView webView, String url, PixelMap icon) {
+
     }
 
     @Override
-    public void onPageFinished(WebView view, String url) {
+    public void onPageLoaded(WebView webView, String url) {
+
     }
 
-    @SuppressWarnings("deprecation")
     @Override
-    public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        view.loadUrl(url);
+    public boolean isNeedLoadUrl(WebView webView, ResourceRequest request) {
+        webView.load(request.getRequestUrl().toString());
         return true;
-
     }
 }

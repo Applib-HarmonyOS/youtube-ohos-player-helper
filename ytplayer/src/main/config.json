@@ -1,0 +1,25 @@
+{
+  "app": {
+    "bundleName": "com.jaedongchicken.ytplayer_sample",
+    "vendor": "jaedongchicken",
+    "version": {
+      "code": 1000000,
+      "name": "1.0.0"
+    }
+  },
+  "deviceConfig": {
+  },
+  "module": {
+    "package": "com.jaedongchicken.ytplayer",
+    "deviceType": [
+      "phone",
+      "tablet",
+      "tv"
+    ],
+    "distro": {
+      "deliveryWithInstall": true,
+      "moduleName": "ytplayer",
+      "moduleType": "har"
+    }
+  }
+}
