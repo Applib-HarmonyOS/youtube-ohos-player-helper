@@ -56,7 +56,11 @@ public class YoutubePlayerView extends WebView {
         WebConfig set = this.getWebConfig();
         set.setJavaScriptPermit(true);
         set.setViewPortFitScreen(true);
-        set.setAutoFitOnLoad(true);
+
+        //TODO : API available in SDK7
+        //set.setAutoFitOnLoad(true);
+        //============================
+
         //set.setLoadWithOverviewMode(true);
         set.setTextAutoSizing(true);
         //set.setCacheMode(WebSettings.LOAD_NO_CACHE);
@@ -293,8 +297,12 @@ public class YoutubePlayerView extends WebView {
     public void onDestroy() {
         //super.onDetachedFromWindow();
         // View is now detached, and about to be destroyed
-        this.clearAllCache();
-        this.clearMemoryCache();
+
+        //TODO : API available in SDK7
+        //this.clearAllCache();
+        //this.clearMemoryCache();
+        //=============================
+
         try {
             if (sConfigCallback != null)
                 sConfigCallback.set(null, null);
