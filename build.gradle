@@ -59,10 +59,10 @@ checkstyle {
 sonarqube {
     properties {
         property "sonar.projectKey", "applibgroup_youtube-ohos-player-helper"
-        //property "sonar.organization", "applibgroup"
-        //property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.host.url", "http://localhost:9000"
-        property "sonar.login", "2941be04e456e1e5c899eeb5a3c958d9f036549a"
+        property "sonar.organization", "applibgroup"
+        property "sonar.host.url", "https://sonarcloud.io"
+        //property "sonar.host.url", "http://localhost:9000"
+        //property "sonar.login", "2941be04e456e1e5c899eeb5a3c958d9f036549a"
         property "sonar.sources", "entry,ytplayer"
         property "sonar.java.binaries", "entry/build,ytplayer/build"
         property "sonar.java.checkstyle.reportPaths", "build/reports/checkstyle/checkstyle.xml"
