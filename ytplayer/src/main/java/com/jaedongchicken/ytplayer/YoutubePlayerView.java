@@ -413,7 +413,7 @@ public class YoutubePlayerView extends WebView {
                 try {
                     stream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    JLog.e(e.getLocalizedMessage());
                 }
             }
         }
