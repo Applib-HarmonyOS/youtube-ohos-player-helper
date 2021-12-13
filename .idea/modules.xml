@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/entry/entry.iml" filepath="$PROJECT_DIR$/.idea/modules/entry/entry.iml" group="youtube_harmony_player_helper/entry" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/youtube_harmony_player_helper.iml" filepath="$PROJECT_DIR$/.idea/modules/youtube_harmony_player_helper.iml" group="youtube_harmony_player_helper" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ytplayer/ytplayer.iml" filepath="$PROJECT_DIR$/.idea/modules/ytplayer/ytplayer.iml" group="youtube_harmony_player_helper/ytplayer" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/entry/entry.iml" filepath="$PROJECT_DIR$/.idea/modules/entry/entry.iml" group="youtube-ohos-player-helper/entry" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/youtube-ohos-player-helper.iml" filepath="$PROJECT_DIR$/.idea/modules/youtube-ohos-player-helper.iml" group="youtube-ohos-player-helper" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ytplayer/ytplayer.iml" filepath="$PROJECT_DIR$/.idea/modules/ytplayer/ytplayer.iml" group="youtube-ohos-player-helper/ytplayer" />
     </modules>
   </component>
 </project>
