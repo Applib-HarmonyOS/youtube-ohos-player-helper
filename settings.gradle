@@ -1,1 +1,1 @@
-include ':app', ':ytplayer'
+include ':entry', ':ytplayer'

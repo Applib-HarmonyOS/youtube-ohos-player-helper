@@ -1,51 +1,43 @@
-Youtube-Android-Player-Helper(YTPlayer)
+[![Build](https://github.com/applibgroup/youtube-ohos-player-helper/actions/workflows/main.yml/badge.svg)](https://github.com/applibgroup/youtube-ohos-player-helper/actions/workflows/main.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=applibgroup_youtube-ohos-player-helper&metric=alert_status)](https://sonarcloud.io/dashboard?id=applibgroup_youtube-ohos-player-helper)
+
+Youtube-OHOS-Player-Helper(YTPlayer)
 =====
-Helper library for Android developers looking to add YouTube video playback in their applications via the iframe player in WebView
+Helper library for harmony developers looking to add YouTube video playback in their applications via the iframe player in WebView
 
-Sample Capture
-=====
 
-![](capture1.png)
-![](capture2.png)
 
-Download
---------
-use Gradle:
+# Source
+This library has been inspired by [ JackDinealKIM /
+youtube-android-player-helper](https://github.com/JackDinealKIM/youtube-android-player-helper).
 
-```gradle
- repositories {
-  jcenter()
-}
+## Integration
 
-dependencies {
-  compile 'com.jaedongchicken:ytplayer:1.4.4'
-}
+1. For using youtube-android-player-helper module in sample app, include the source code and add the below dependencies in entry/build.gradle to generate hap/support.har.
 ```
-
-Or Maven:
-
-```xml
-<dependency>
-  <groupId>com.jaedongchicken</groupId>
-  <artifactId>ytplayer</artifactId>
-  <version>1.4.4</version>
-  <type>pom</type>
-</dependency>
+ implementation project(path: ':ytplayer')
+```
+2. For using youtube-android-player-helper module in separate application using har file, add the har file in the entry/libs folder and add the dependencies in entry/build.gradle file.
+```
+ implementation fileTree(dir: 'libs', include: ['*.har'])
+```
+3. For using youtube-android-player-helper module from a remote repository in separate application, add the below dependencies in entry/build.gradle file.
+```
+implementation 'dev.applibgroup:youtube-android-player-helper:1.0.0'
 ```
 
 
 How do I use YTPlayer?
 -------------------
-You can see more detail from [MainActivity.java][1].
 
 Simple use cases will look something like this:
 * XML
 
 ```xml
     <com.jaedongchicken.ytplayer.YoutubePlayerView
-        android:id="@+id/youtubePlayerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        ohos:id="$+id:youtubePlayerView"
+        ohos:width="match_parent"
+        ohos:height="match_content" />
 
 ```
 
@@ -53,7 +45,7 @@ Simple use cases will look something like this:
 
 ```java
         // get id from XML
-        YoutubePlayerView youtubePlayerView = (YoutubePlayerView) findViewById(R.id.youtubePlayerView);
+        YoutubePlayerView youtubePlayerView = (YoutubePlayerView) findComponentById(ResourceTable.Id_youtubePlayerView);
        
          // Control values
          // see more # https://developers.google.com/youtube/player_parameters?hl=en
@@ -64,7 +56,7 @@ Simple use cases will look something like this:
 
         
          // initialize YoutubePlayerCallBackListener with Params and VideoID
-        // youtubePlayerView.initialize("WCchr07kLPE", params, new YoutubePlayerView.YouTubeListener())
+        // youtubePlayerView.initialize("B2zhLYz4pYo", params, new YoutubePlayerView.YouTubeListener())
 
 		// initialize YoutubePlayerCallBackListener with Params and Full Video URL
         // To Use - avoid UMG block!!!! but you'd better make own your server for your real service.
@@ -130,43 +122,20 @@ Simple use cases will look something like this:
         youtubePlayerView.play();
         
     
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // pause video when on the background mode.
+   @Override
+    protected void onInactive() {
+        super.onInactive();
         youtubePlayerView.pause();
     }
-    
+
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // this is optional but you need.
-        youtubePlayerView.destroy();
+    protected void onStop() {
+        super.onStop();
+        youtubePlayerView.onDestroy();
     }
     
 ```
 
-
-Updated
-------
-```
-V 1.4.4 - Open Player when you click the logo.
-V 1.4.3 - Fixed player is not to redirect.
-v 1.4.2 - fix handler.
-v 1.4.1 - Solved UMG block.
-v 1.3.0 - added AudioVolume, VideoQualoty in YTParams class.
-v 1.2.0 - added YTParams class, many youtube functions defined.
-v 1.1.0 - added setWhiteBackgroundColor() method.
-```
-
-Author
-------
-Jaedong Kim - @JackDinealKIM on GitHub, mashiaro@gmail.com
-
-
-Disclaimer
----------
-This is not an official Google product.
 
 License
 -------
@@ -185,8 +154,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-
-[1]: https://github.com/JackDinealKIM/youtube-android-player-helper/blob/master/app/src/main/java/com/jaedongchicken/ytplayer_sample/MainActivity.java
 
 
 
