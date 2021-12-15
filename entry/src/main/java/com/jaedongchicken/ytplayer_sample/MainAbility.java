@@ -35,7 +35,7 @@ public class MainAbility extends Ability {
         // params.setControls(0);
         // params.setAutoplay(1);
         params.setVolume(100);
-        params.setPlaybackQuality(PlaybackQuality.small);
+        params.setPlaybackQuality(PlaybackQuality.SMALL);
 
         currentSec.setText(String.valueOf(0));
 

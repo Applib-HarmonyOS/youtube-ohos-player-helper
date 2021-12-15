@@ -368,7 +368,6 @@ public class YoutubePlayerView extends WebView {
     }
 
     private String getVideoHTML(String videoId) {
-        InputStreamReader stream = null;
         try {
             ResourceManager resManager = context.getResourceManager();
             RawFileEntry rawFileEntry = resManager.getRawFileEntry("resources/rawfile/players.qualson");
@@ -380,42 +379,35 @@ public class YoutubePlayerView extends WebView {
             }
 
             if (in != null) {
-                stream = new InputStreamReader(in, "utf-8");
-                try(BufferedReader buffer = new BufferedReader(stream)){
-                    String read;
-                    StringBuilder sb = new StringBuilder("");
+                try(InputStreamReader stream = new InputStreamReader(in, "utf-8")){
+                    try(BufferedReader buffer = new BufferedReader(stream)){
+                        String read;
+                        StringBuilder sb = new StringBuilder("");
 
-                    while ((read = buffer.readLine()) != null) {
-                        sb.append(read + "\n");
+                        while ((read = buffer.readLine()) != null) {
+                            sb.append(read + "\n");
+                        }
+
+                        in.close();
+
+                        String html = sb.toString().replace("[VIDEO_ID]", videoId).replace("[BG_COLOR]", backgroundColor);
+                        PlaybackQuality playbackQuality = params.getPlaybackQuality();
+                        html = html.replace("[AUTO_PLAY]", String.valueOf(params.getAutoplay()))
+                                .replace("[AUTO_HIDE]", String.valueOf(params.getAutohide()))
+                                .replace("[REL]", String.valueOf(params.getRel()))
+                                .replace("[SHOW_INFO]", String.valueOf(params.getShowinfo()))
+                                .replace("[ENABLE_JS_API]", String.valueOf(params.getEnablejsapi()))
+                                .replace("[DISABLE_KB]", String.valueOf(params.getDisablekb()))
+                                .replace("[CC_LANG_PREF]", String.valueOf(params.getCc_lang_pref()))
+                                .replace("[CONTROLS]", String.valueOf(params.getControls()))
+                                .replace("[AUDIO_VOLUME]", String.valueOf(params.getVolume()))
+                                .replace("[PLAYBACK_QUALITY]", playbackQuality == null ? String.valueOf("default") : playbackQuality.name());
+                        return html;
                     }
-
-                    in.close();
-
-                    String html = sb.toString().replace("[VIDEO_ID]", videoId).replace("[BG_COLOR]", backgroundColor);
-                    PlaybackQuality playbackQuality = params.getPlaybackQuality();
-                    html = html.replace("[AUTO_PLAY]", String.valueOf(params.getAutoplay()))
-                            .replace("[AUTO_HIDE]", String.valueOf(params.getAutohide()))
-                            .replace("[REL]", String.valueOf(params.getRel()))
-                            .replace("[SHOW_INFO]", String.valueOf(params.getShowinfo()))
-                            .replace("[ENABLE_JS_API]", String.valueOf(params.getEnablejsapi()))
-                            .replace("[DISABLE_KB]", String.valueOf(params.getDisablekb()))
-                            .replace("[CC_LANG_PREF]", String.valueOf(params.getCc_lang_pref()))
-                            .replace("[CONTROLS]", String.valueOf(params.getControls()))
-                            .replace("[AUDIO_VOLUME]", String.valueOf(params.getVolume()))
-                            .replace("[PLAYBACK_QUALITY]", playbackQuality == null ? String.valueOf("default") : playbackQuality.name());
-                    return html;
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            if(stream != null){
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    JLog.e(e.getLocalizedMessage());
-                }
-            }
         }
         return "";
     }

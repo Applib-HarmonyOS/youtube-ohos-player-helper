@@ -5,10 +5,10 @@ package com.jaedongchicken.ytplayer.model;
  */
 
 public enum PlaybackQuality {
-    small,
-    medium,
-    large,
-    hd720,
-    hd1080,
-    highres
+    SMALL,
+    MEDIUM,
+    LARGE,
+    HD720,
+    HD1080,
+    HIGHRES
 }

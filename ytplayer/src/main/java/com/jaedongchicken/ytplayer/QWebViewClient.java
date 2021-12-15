@@ -13,12 +13,12 @@ public class QWebViewClient extends WebAgent {
 
     @Override
     public void onLoadingPage(WebView webView, String url, PixelMap icon) {
-
+        //doNothing
     }
 
     @Override
     public void onPageLoaded(WebView webView, String url) {
-
+        //doNothing
     }
 
     @Override
