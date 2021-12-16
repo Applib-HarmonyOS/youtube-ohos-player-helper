@@ -407,7 +407,7 @@ public class YoutubePlayerView extends WebView {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            JLog.e(e.getLocalizedMessage());
         }
         return "";
     }
